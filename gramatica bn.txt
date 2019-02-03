@@ -1,0 +1,255 @@
+
+Vesion Final de gramatica Bnf
+1. Identifiers, Integers, Logical Values, and Comments
+identificadores enteros y comentarios ya estan definidos en el lexico
+
+
+
+2. Basic and Simple Types
+
+simpletype : basictype
+		   		 |ID op_expressionparen
+		   		 ;
+op_expressionparen: LPAREN expressionlist RPAREN
+									|
+									;
+
+basictype : BIT
+		  | TS
+		  | OC
+		  ;
+
+expressionlist : expressionlist COMA expression
+			   			 | expression
+			   	 		 ;
+
+
+3. Array types
+
+op_corexpre: rep_corexpre
+					 |
+					 ;
+rep_corexpre: rep_corexpre corexpre
+					 	|corexpre
+						;
+corexpre: CORCHEA expression CORCHEC;
+
+type : op_corexpre simpletype
+	   ;
+
+
+4. Constant Declarations
+
+constdeclaration : ID ASSING expression SEMI
+				 				 ;
+
+
+5. Variable Declarations
+
+vardeclaration : idlist DOSPUNTOS type SEMI
+
+idlist : idlist, ID
+	   | ID
+	   ;
+
+6. Expressions
+
+
+expression : expression + term
+           | expression - term
+           | term
+           ;
+
+
+
+term       : term AND factor
+           | term BARRA factor
+           | term DIV factor
+           | term MOD factor
+           | factor
+
+
+
+factor : ID op_selector
+	   | logicvalue
+	   | integer
+	   | NOT factor
+	   | POWER factor
+	   | LPAREN expression RPAREN
+	   | MUX LPAREN expression DOSPUNTOS expression , expression RPAREN
+	   | MUX LPAREN expression , expression DOSPUNTOS expression , expression , expression , expression RPAREN
+	   | REG LPAREN expression RPAREN
+	   | REG LPAREN expression, expression RPAREN
+	   | LATCH LPAREN expression , expression RPAREN
+	   | SR LPAREN expression , expression RPAREN
+		 ;
+
+op_selector: rep_selector
+					 |
+					 ;
+
+rep_selector: rep_selector selector
+					 	| selector
+						;
+
+selector :PUNTO ID
+         |PUNTO INTEGER
+         |corexpre
+         ;
+
+7. Assignments
+
+
+assignment : ID op_selector ASSING condition O expression
+		   		 | ID op_selector ASSING expression
+		       ;
+
+
+condition :expresssion
+          ;
+
+
+8. Control Statements
+
+relation : expression IGUAL expression
+         | expression NUMERAL expression
+         | expression MENOR expression
+         | expression MAYOR expression
+         | expression MAYORI expression
+         | expression MENORI expression
+         ;
+
+statementsequence : statementsequence SEMI statement
+				  | statement
+				  ;
+
+statement : assignment
+          | unitassignment
+          | ifstatement
+          | forstatement
+					|
+          ;
+
+unitassignment: ID op_selector LPAREN expressionlist RPAREN
+
+forstatement: FOR ID ASSING expression HASTA expression DO statementsequence END
+
+ifstatement: IF relation THEN statementsequence op_cuerpoElsif op_cuerpoElse END
+
+op_cuerpoElsif: re_cuerpoElsif
+							|
+							;
+rep_cuerpoElsif: rep_cuerpoElsif cuerpoElsif
+							 | cuerpoElsif
+							 ;
+cuerpoElsif: ELSIF relation THEN statementsequence
+					;
+
+op_cuerpoElse: ELSE statementsequence
+						 |
+						 ;
+
+
+formaltype: op_corchexpression BIT
+					;
+op_corchexpression:	rep_corchexpression
+									|
+									;
+rep_corchexpression: rep_corchexpression CORCHEA op_expression CORCHEC
+									 | CORCHEA op_expression CORCHEC
+									 ;
+op_expression: expression
+						 |
+						 ;
+formalbustype: op_corchexpression TS
+						 | op_corchexpression OC
+9. Modules
+
+module : MODULE ID SEMI
+		 op_typedeclaration
+		 op_const
+		 op_in
+		 op_inout
+		 op_out
+		 op_var
+		 op_begin
+		 END ID.
+		;
+
+op_typedeclaration: rep_typedeclaration
+									|
+									;
+rep_typedeclaration: rep_typedeclaration typedeclaration
+									 | typedeclaration
+									 ;
+typedeclaration: TYPE ID puntero op_list SEMI op_const op_intype op_inoutype op_out op_var op_begin END ID
+					   ;
+
+puntero : AND
+			  |
+			  ;
+op_list : LPAREN idlist RPAREN
+			  |
+			  ;
+
+op_intype: IN op_cuerpoin
+				|
+				;
+
+op_cuerpoin: rep_cuerpoin
+					|
+					;
+
+rep_cuerpoin: rep_cuerpoin cuerpoin
+						|cuerpoin
+						;
+cuerpoin: idlist DOSPUNTOS formaltype SEMI;
+
+op_inoutype: INOUT op_cuerpoinout
+					 |
+					 ;
+op_cuerpoinout: rep_cuerpoinout
+					 		|
+							;
+rep_cuerpoinout: rep_cuerpoinout cuerpoinout
+							 |cuerpoinout
+							 ;
+cuerpoinout: idlist DOSPUNTOS formalbustype SEMI
+
+
+
+op_const: CONST op_constdeclaration
+				|
+				;
+
+op_constdeclaration: rep_constdeclaration
+									 |
+									 ;
+
+rep_constdeclaration: rep_constdeclaration constdeclaration
+										|constdeclaration
+										;
+
+op_in: IN op_vardeclaration
+		 |
+		 ;
+op_vardeclaration: rep_vardeclaration
+ 		 						 |
+								 ;
+rep_vardeclaration: rep_vardeclaration vardeclaration
+									|vardeclaration
+									;
+
+op_inout: INOUT op_vardeclaration;
+				|
+				;
+
+op_out: OUT op_vardeclaration
+			|
+   		;
+op_var: VAR op_vardeclaration
+			|
+			;
+op_begin: BEGIN statementsequence
+				|
+				;
